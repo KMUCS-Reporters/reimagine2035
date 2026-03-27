@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import emblemColor from '../assets/emblem_color.jpg';
 
 const SURVEY_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSf11MVsB7jnMCjfwTzN11DU7Xc0BqGdu8Tc_yHCqP1fINvKuA/viewform';
@@ -44,8 +45,15 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6">
           {/* Logo */}
-          <div className="shrink-0 text-xl font-bold text-blue-900 tracking-tight sm:text-2xl">
-            <Link to="/">KMUCS Reimagine 2035!</Link>
+          <div className="shrink-0">
+            <Link to="/" className="flex items-center gap-3 text-xl font-bold tracking-tight text-blue-900 sm:text-2xl">
+              <img
+                src={emblemColor}
+                alt="국민대학교 로고"
+                className="h-10 w-10 rounded-full object-cover sm:h-11 sm:w-11"
+              />
+              <span>KMUCS Reimagine 2035!</span>
+            </Link>
           </div>
 
           {/* Desktop Menu */}

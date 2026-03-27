@@ -1,28 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const normalizeCarouselDistance = (index: number, rotation: number, total: number) => {
-  let distance = index - rotation;
-
-  if (distance > total / 2) {
-    distance -= total;
-  }
-
-  if (distance < -total / 2) {
-    distance += total;
-  }
-
-  return distance;
-};
-
-const normalizeRotationValue = (rotation: number, total: number) => {
-  const normalized = rotation % total;
-  return normalized < 0 ? normalized + total : normalized;
-};
-
 const WorkshopDetail: React.FC = () => {
+  const [flippedTeams, setFlippedTeams] = useState<number[]>([]);
+
   const workshop = {
     title: 'Reimagine 2035 워크숍',
     date: '2025년 6월 18일',
@@ -53,14 +36,46 @@ const WorkshopDetail: React.FC = () => {
       ]
     },
     teams: [
-      { title: '10년 뒤 상상하기', team: '슈팅35' },
-      { title: '10년 후의 나와 공동체, 국민대 소프트웨어융합대학의 미래', team: '오소리' },
-      { title: 'Reimagine On Mars', team: '1 ON MARS' },
-      { title: 'KMUCS REIMAGINE 2035!', team: '4WARD' },
-      { title: 'AI와 미래', team: '234!' },
-      { title: '10년뒤 상상하기', team: 'A바지(AI시대는 바로 지금!)' },
-      { title: 'KMU Global Planetary Studio (GPS)', team: '두팔' },
-      { title: '2035년', team: 'KMU 서포터즈' }
+      {
+        title: '10년 뒤 상상하기',
+        team: '슈팅35',
+        detail: '2035년의 삶을 자유롭게 상상하며 개인의 변화와 사회의 흐름을 함께 그려본 팀입니다.'
+      },
+      {
+        title: '10년 후의 나와 공동체, 국민대 소프트웨어융합대학의 미래',
+        team: '오소리',
+        detail: '개인의 성장과 공동체의 진화를 연결해 미래 대학과 학문의 방향을 입체적으로 탐색했습니다.'
+      },
+      {
+        title: 'Reimagine On Mars',
+        team: '1 ON MARS',
+        detail: '낯선 환경을 배경으로 기술, 생존, 협력의 의미를 새롭게 상상해보는 시도를 담았습니다.'
+      },
+      {
+        title: 'KMUCS REIMAGINE 2035!',
+        team: '4WARD',
+        detail: '소프트웨어융합대학의 다음 10년을 바라보며 학습, 진로, 캠퍼스 경험의 미래를 구체화했습니다.'
+      },
+      {
+        title: 'AI와 미래',
+        team: '234!',
+        detail: 'AI가 일상과 진로, 사회 구조에 어떤 영향을 줄지 질문하며 기회와 고민을 함께 나눴습니다.'
+      },
+      {
+        title: '10년뒤 상상하기',
+        team: 'A바지(AI시대는 바로 지금!)',
+        detail: '이미 시작된 AI 시대를 바탕으로 앞으로의 10년이 어떻게 확장될지 현실적으로 상상했습니다.'
+      },
+      {
+        title: 'KMU Global Planetary Studio (GPS)',
+        team: '두팔',
+        detail: '지역을 넘어 지구적 관점에서 연결과 이동, 학습의 미래를 설계해본 팀의 아이디어입니다.'
+      },
+      {
+        title: '2035년',
+        team: 'KMU 서포터즈',
+        detail: '2035년이라는 키워드 하나로 학생들의 기대와 변화의 방향을 압축적으로 풀어낸 이야기입니다.'
+      }
     ],
     highlights: ['2035년 미래 상상', '팀별 토론과 발표', '학생 인터뷰 아카이빙'],
     videos: [
@@ -74,47 +89,14 @@ const WorkshopDetail: React.FC = () => {
       { id: 'ES8vx6Jk0_M', title: '2035년' }
     ]
   };
-  const [carouselRotation, setCarouselRotation] = useState(Math.floor(workshop.teams.length / 2));
-  const [isDragging, setIsDragging] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(() => (typeof window === 'undefined' ? 1280 : window.innerWidth));
-  const rotationRef = useRef(carouselRotation);
-  const dragStateRef = useRef({
-    pointerId: -1,
-    startX: 0,
-    startRotation: 0
-  });
 
-  const updateRotation = (nextRotation: number) => {
-    const normalizedRotation = normalizeRotationValue(nextRotation, workshop.teams.length);
-    rotationRef.current = normalizedRotation;
-    setCarouselRotation(normalizedRotation);
+  const toggleTeamCard = (index: number) => {
+    setFlippedTeams((current) =>
+      current.includes(index)
+        ? current.filter((item) => item !== index)
+        : [...current, index]
+    );
   };
-
-  const moveCardToFront = (index: number) => {
-    const total = workshop.teams.length;
-    const current = rotationRef.current;
-    const baseTarget = normalizeRotationValue(index, total);
-    const currentWrapped = normalizeRotationValue(current, total);
-
-    let delta = baseTarget - currentWrapped;
-
-    if (delta > total / 2) {
-      delta -= total;
-    }
-
-    if (delta < -total / 2) {
-      delta += total;
-    }
-
-    updateRotation(current + delta);
-  };
-
-  useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth);
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <div>
@@ -202,98 +184,50 @@ const WorkshopDetail: React.FC = () => {
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700">Teams</p>
                 <h2 className="mt-3 text-3xl font-bold text-stone-900">이런 조들이 함께했습니다</h2>
                 <p className="mt-3 text-sm leading-relaxed text-slate-500">
-                  카드를 좌우로 드래그하시면 원통을 따라 자연스럽게 회전합니다.
+                  카드를 클릭하면 각 조가 AI 사용에 활용한 프롬프트를 볼 수 있습니다.
                 </p>
               </div>
-              <div
-                className={`mt-6 flex items-center justify-center overflow-hidden px-1 pt-8 select-none md:px-4 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                onPointerDown={(event) => {
-                  dragStateRef.current = {
-                    pointerId: event.pointerId,
-                    startX: event.clientX,
-                    startRotation: rotationRef.current
-                  };
-                  setIsDragging(true);
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                }}
-                onPointerMove={(event) => {
-                  if (!isDragging || dragStateRef.current.pointerId !== event.pointerId) {
-                    return;
-                  }
-
-                  const deltaX = event.clientX - dragStateRef.current.startX;
-                  updateRotation(dragStateRef.current.startRotation - deltaX / 150);
-                }}
-                onPointerUp={(event) => {
-                  if (dragStateRef.current.pointerId !== event.pointerId) {
-                    return;
-                  }
-
-                  setIsDragging(false);
-                  updateRotation(Math.round(rotationRef.current));
-                  event.currentTarget.releasePointerCapture(event.pointerId);
-                }}
-                onPointerCancel={(event) => {
-                  if (dragStateRef.current.pointerId !== event.pointerId) {
-                    return;
-                  }
-
-                  setIsDragging(false);
-                  updateRotation(Math.round(rotationRef.current));
-                  event.currentTarget.releasePointerCapture(event.pointerId);
-                }}
-                style={{ touchAction: 'none' }}
-              >
-                <div
-                  className="relative mx-auto h-[22rem] w-full max-w-[90rem] md:h-[27rem]"
-                  style={{ perspective: '1800px', perspectiveOrigin: '50% 50%' }}
-                >
-                  {workshop.teams.map((item, index) => {
-                    const isMobile = viewportWidth < 768;
-                    const distanceFromCenter = normalizeCarouselDistance(index, carouselRotation, workshop.teams.length);
-                    const theta = distanceFromCenter * (isMobile ? 26 : 28);
-                    const radians = (theta * Math.PI) / 180;
-                    const horizontalRadius = isMobile ? 172 : 332;
-                    const depthRadius = isMobile ? 132 : 226;
-                    const translateX = Math.sin(radians) * horizontalRadius;
-                    const translateZ = Math.cos(radians) * depthRadius - depthRadius * 0.9;
-                    const translateY = Math.abs(distanceFromCenter) < 0.35
-                      ? (isMobile ? 14 : 22)
-                      : Math.abs(distanceFromCenter) * (isMobile ? 5 : 7) - (isMobile ? 2 : 4);
-                    const scale = (isMobile ? 0.82 : 0.88) + Math.max(0, Math.cos(radians)) * (isMobile ? 0.16 : 0.14);
-                    const hiddenBehind = Math.cos(radians) <= -0.55;
-                    const opacity = hiddenBehind ? 0 : Math.abs(distanceFromCenter) < 0.35 ? 1 : 0.28 + Math.max(0, Math.cos(radians)) * 0.52;
-                    const isFrontCard = Math.abs(distanceFromCenter) < 0.35;
-                    const zIndex = hiddenBehind ? 0 : Math.round((Math.cos(radians) + 1) * 100);
-
-                    return (
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {workshop.teams.map((item, index) => (
+                  <button
+                    key={item.team}
+                    type="button"
+                    aria-pressed={flippedTeams.includes(index)}
+                    onClick={() => toggleTeamCard(index)}
+                    className="group min-h-[12rem] cursor-pointer rounded-[1.5rem] text-left [perspective:1200px]"
+                  >
+                    <div
+                      className="relative min-h-[12rem] rounded-[1.5rem] transition-transform duration-500 [transform-style:preserve-3d]"
+                      style={{
+                        transform: flippedTeams.includes(index) ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                      }}
+                    >
                       <article
-                        key={item.team}
-                        onClick={() => moveCardToFront(index)}
-                        className="absolute left-1/2 top-1/2 flex h-36 w-40 -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none flex-col items-center justify-center rounded-[1.35rem] border border-sky-100 bg-white p-3 text-center transition-[transform,box-shadow,opacity,filter] duration-500 ease-out sm:h-40 sm:w-44 sm:p-4 md:h-48 md:w-56 md:rounded-[1.5rem]"
-                        style={{
-                          boxShadow: isFrontCard
-                            ? '0 28px 56px rgba(147,197,253,0.34)'
-                            : '0 16px 34px rgba(191,219,254,0.2)',
-                          filter: isFrontCard ? 'none' : 'saturate(0.92)',
-                          opacity,
-                          zIndex,
-                          transform: `translate(-50%, -50%) translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateY(${theta}deg) scale(${scale})`,
-                          transformStyle: 'preserve-3d',
-                          transitionDuration: isDragging ? '90ms' : '560ms',
-                          userSelect: 'none',
-                          WebkitUserSelect: 'none',
-                          transitionTimingFunction: isDragging ? 'linear' : 'cubic-bezier(0.22, 1, 0.36, 1)'
-                        }}
+                        className="absolute inset-0 flex min-h-[12rem] flex-col justify-center rounded-[1.5rem] border border-sky-100 bg-white p-5 text-center shadow-[0_16px_34px_rgba(191,219,254,0.18)]"
+                        style={{ backfaceVisibility: 'hidden' }}
                       >
-                        <p className="text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700 sm:text-xs sm:tracking-[0.18em]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
                           {item.team}
                         </p>
-                        <p className="mt-2 text-center text-sm leading-relaxed text-slate-700 sm:mt-3 sm:text-base md:text-[1.05rem]">{item.title}</p>
+                        <p className="mt-3 text-base leading-relaxed text-slate-700">
+                          {item.title}
+                        </p>
                       </article>
-                    );
-                  })}
-                </div>
+
+                      <article
+                        className="absolute inset-0 flex min-h-[12rem] flex-col justify-center rounded-[1.5rem] border border-sky-200 bg-[linear-gradient(180deg,#eff8ff_0%,#dff1ff_100%)] p-5 text-center shadow-[0_16px_34px_rgba(125,211,252,0.22)]"
+                        style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                          {item.team}
+                        </p>
+                        <p className="mt-3 text-sm leading-relaxed text-slate-700">
+                          {item.detail}
+                        </p>
+                      </article>
+                    </div>
+                  </button>
+                ))}
               </div>
             </section>
 
